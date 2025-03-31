@@ -31,6 +31,7 @@ lazy val root = project
 lazy val benchmarks = project
   .in(file("benchmarks"))
   .enablePlugins(JmhPlugin)
+  .settings(stdSettings)
   .settings(replSettings)
   .settings(
     name := "profiling-benchmarks",

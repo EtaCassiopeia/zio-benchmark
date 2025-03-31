@@ -1,7 +1,8 @@
 package c1
 
-import org.openjdk.jmh.annotations.{Scope => JScope, *}
-import zio.{ZIO, Runtime, Unsafe}
+import org.openjdk.jmh.annotations.{Scope as JScope, *}
+import zio.{Executor, Runtime, Unsafe, ZIO}
+
 import java.util.concurrent.TimeUnit
 
 @State(JScope.Thread)
@@ -23,6 +24,10 @@ class VirtualThreadBenchmark {
   var syncBlockingZio: ZIO[Any, Throwable, Unit] = _
   var asyncZio: ZIO[Any, Throwable, Unit] = _
   var asyncWithBlockingZio: ZIO[Any, Throwable, Unit] = _
+
+  val blockingExecutor: Executor = zio.Executor.fromExecutionContext(
+    zio.Runtime.defaultBlockingExecutor.asExecutionContext
+  )
 
   @Param(Array("10", "50", "100"))
   var concurrency: Int = _
@@ -48,10 +53,9 @@ class VirtualThreadBenchmark {
       ZIO.fromCompletionStage(VirtualThreadTask.runAsync(task))
     )
 
-    // Asynchronous call combined with blocking operation
+    // Asynchronous call running on the blocking executor
     asyncWithBlockingZio = ZIO.foreachParDiscard(1 to concurrency)(_ =>
-      ZIO.fromCompletionStage(VirtualThreadTask.runAsync(task)) *>
-        ZIO.attemptBlocking { Thread.sleep(50) } // Additional 50ms blocking operation
+      ZIO.fromCompletionStage(VirtualThreadTask.runAsync(task)).onExecutor(blockingExecutor)
     )
   }
 
