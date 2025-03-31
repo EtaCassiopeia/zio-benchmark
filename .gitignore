@@ -1,0 +1,33 @@
+# sbt specific
+target/
+project/target/
+project/project/
+
+.bsp/
+
+# Scala specific
+*.class
+*.log
+*.cache
+*.tmp
+*.out
+*.bak
+
+# IntelliJ IDEA specific
+.idea/
+*.iml
+*.iws
+out/
+
+# Java specific
+*.class
+*.jar
+*.war
+*.ear
+
+# General
+.DS_Store
+Thumbs.db
+
+*.coz
+*.folded
